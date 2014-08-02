@@ -15,13 +15,14 @@ sub element {
     while (@tail) {
         my $part = shift @tail;
         if ($part !~ '(\||\(|\)|>)') {
-            $part =~ s/[\,\+]// ;
+            $part =~ s/[\,\+\#]// ;
             $dtd->{$key}->{elm}[$new_idx] = $part ;
             $new_idx++;
         }
     }
 }
-sub attlist(@) {
+
+sub attlist {
     my $key = shift @_;
     my $attkey = shift @_;
     my @tail = @_;
@@ -35,6 +36,28 @@ sub attlist(@) {
     }
 }
 
+sub graphviz {
+    my ($fn, $suffix) = split /./, @_;
+    $suffix = "dot";
+    $fn = join('.', $fn,$suffix);
+    open my $fdot, "> $fn" or die "Cann't open for write $fn";
+
+    print $fdot "digraph dtd_flowchart {\n";
+    #say "diagraph dtd_flowchart {";
+
+    for my $key (keys $dtd) {
+        if (defined $dtd->{$key}->{elm}) {
+            my $elements = join(', dtd_', @{$dtd->{$key}->{elm}});
+
+            #say "dtd_$key -> { dtd_$elements };";
+            print $fdot "dtd_$key -> {dtd_$elements};\n";
+        }
+    }
+
+    #say "}";
+    print $fdot "}\n\n";
+    close $fdot;
+}
 
 sub main {
     my $fn = shift @_;
@@ -48,8 +71,8 @@ sub main {
             &attlist(@line) if ( $start =~ m/<!ATTLIST/);
         }
     }
-    p $dtd;
+    close $fdtd;
+    &graphviz($fn);
 }
 
-p @ARGV;
 &main(@ARGV);
