@@ -44,15 +44,31 @@ sub graphviz {
 
     print $fdot "digraph dtd_flowchart {\n";
     #say "diagraph dtd_flowchart {";
+    #print $fdot "edge [constrain=true];\n";
+    #say  "edge [constrain=true];";
 
-    for my $key (keys $dtd) {
-        if (defined $dtd->{$key}->{elm}) {
-            my $elements = join(', dtd_', @{$dtd->{$key}->{elm}});
+    for my $node (keys $dtd) {
+        my $attributes = "";
+        if (defined $dtd->{$node}->{att}) {
+            for my $attkey (keys $dtd->{$node}->{att}) {
+                if (defined $dtd->{$node}->{att}->{$attkey}) {
+                    $attributes = join " ", $attributes, 
+                                            $attkey,
+                                            @{$dtd->{$node}->{att}->{$attkey}};
+                }
+            }
+        }
+        my $nodeatt = "dtd_$node [label=\"$node\", tooltip=\"$attributes\"]";
+        if (defined $dtd->{$node}->{elm}) {
+            my $elements = join(', dtd_', @{$dtd->{$node}->{elm}});
 
-            #say "dtd_$key -> { dtd_$elements };";
-            print $fdot "dtd_$key -> {dtd_$elements};\n";
+            #say $nodeatt;
+            print $fdot "$nodeatt\n";
+            #say "dtd_$node -> { dtd_$elements };";
+            print $fdot "dtd_$node -> {dtd_$elements};\n";
         }
     }
+
 
     #say "}";
     print $fdot "}\n\n";
