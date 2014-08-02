@@ -1,0 +1,3 @@
+= DTD to Graphviz
+
+A small tool to generate dtd informations to a flowchart.
