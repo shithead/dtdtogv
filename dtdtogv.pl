@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use feature 'say';
+use File::Basename;
 use Data::Printer;
 
 our $dtd = {};
@@ -14,8 +15,8 @@ sub element {
     my $new_idx = 0;
     while (@tail) {
         my $part = shift @tail;
-        if ($part !~ '(\||\(|\)|>)') {
-            $part =~ s/[\,\+\#]// ;
+        if ($part !~ '(\||\(|\)|>)') {  # match words with | ( ) >
+            $part =~ s/[\,\+\#]// ;     # substitute , + # to empty
             $dtd->{$key}->{elm}[$new_idx] = $part ;
             $new_idx++;
         }
@@ -37,7 +38,7 @@ sub attlist {
 }
 
 sub graphviz {
-    my ($fn, $suffix) = split /./, @_;
+    (my $fn, my $suffix) = (split /\./, fileparse(shift @_));
     $suffix = "dot";
     $fn = join('.', $fn,$suffix);
     open my $fdot, "> $fn" or die "Cann't open for write $fn";
@@ -73,6 +74,7 @@ sub graphviz {
     #say "}";
     print $fdot "}\n\n";
     close $fdot;
+    say "wrote $fn";
 }
 
 sub main {
